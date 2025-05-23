@@ -1,0 +1,24 @@
+services:
+  db:
+    image: mysql:8
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: superpassword
+      MYSQL_DATABASE: mydatabase
+    ports:
+      - "3306:3306"
+
+  web:
+    build: .
+    container_name: fastapi-app
+    volumes:
+      - .:/app  # <-- monta la cartella corrente dentro il container
+    ports:
+      - "8000:8000"
+    command: sh -c "python /wait-for-mysql.py && uvicorn app.main:app --host 0.0.0.0 --reload"  # <-- abilita hot-reload
+    depends_on:
+      - db
+    environment:
+      - MYSQL_PASSWORD=superpassword
+
